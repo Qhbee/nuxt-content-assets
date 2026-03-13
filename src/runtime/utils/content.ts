@@ -45,7 +45,8 @@ export function walkBody (content: ParsedContent, callback: (node: any) => void)
   }
 
   // Content v3: minimark format { type: 'minimark', value: [...] }
-  if (content.body.type === 'minimark' && Array.isArray(content.body.value)) {
+  // Also supports deprecated format { type: 'minimal', value: [...] }
+  if ((content.body.type === 'minimark' || content.body.type === 'minimal') && Array.isArray(content.body.value)) {
     walkMinimark(content.body.value, callback)
     return
   }

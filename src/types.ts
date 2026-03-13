@@ -119,6 +119,7 @@ export interface ParsedContent {
    *
    * Content v2: hast-based MDC AST { type: 'root', children: [...] }
    * Content v3: minimark tree { type: 'minimark', value: [...] }
+   *             also supports deprecated { type: 'minimal', value: [...] }
    */
   body: {
     type: string,

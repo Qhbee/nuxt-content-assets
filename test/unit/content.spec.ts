@@ -149,6 +149,33 @@ describe('walkBody - minimark format (Content v3)', () => {
     })
     expect(visited).toHaveLength(0)
   })
+
+  it('should walk deprecated "minimal" body type (legacy minimark format)', () => {
+    const content: ParsedContent = {
+      _id: 'test',
+      _source: '',
+      _dir: '',
+      _path: '',
+      _file: 'test.md',
+      _type: 'markdown',
+      _extension: 'md',
+      body: {
+        type: 'minimal',
+        value: [
+          ['p', {}, 'Hello ', ['img', { src: './legacy.png', alt: 'legacy' }]],
+        ],
+      },
+    }
+
+    const visited: Array<{ tag: string; props: any }> = []
+    walkBody(content, (node: any) => {
+      visited.push({ tag: node.tag, props: { ...node.props } })
+    })
+
+    expect(visited).toHaveLength(1)
+    expect(visited[0].tag).toBe('img')
+    expect(visited[0].props.src).toBe('./legacy.png')
+  })
 })
 
 /**

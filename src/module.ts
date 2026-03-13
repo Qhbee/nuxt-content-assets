@@ -36,12 +36,28 @@ const meta: ModuleMeta = {
  * rather than a Nitro runtime hook.
  */
 function isContentV3 (nuxt: Nuxt): boolean {
-  // Content v3 doesn't have content.sources in the config
-  // Content v2 uses content.sources for mount configuration
+  // Primary detection: try to read the installed @nuxt/content version
+  try {
+    const contentPkgPath = require.resolve('@nuxt/content/package.json', {
+      paths: [nuxt.options.rootDir],
+    })
+    const contentPkg = JSON.parse(Fs.readFileSync(contentPkgPath, 'utf-8'))
+    const version = contentPkg.version
+    if (version) {
+      const major = parseInt(version.split('.')[0], 10)
+      if (major >= 3) return true
+      if (major <= 2) return false
+    }
+  }
+  catch {
+    // package resolution failed, fall back to config-based detection
+  }
+
+  // Fallback: detect from content config shape
   const contentConfig = (nuxt.options as any).content
   if (contentConfig && typeof contentConfig === 'object') {
     // Content v3 uses database/collections-based config
-    if ('database' in contentConfig || contentConfig.sources === undefined) {
+    if ('database' in contentConfig) {
       return true
     }
     // Content v2 uses sources
