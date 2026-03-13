@@ -1,5 +1,4 @@
 import { defineNuxtConfig } from 'nuxt/config'
-import type { MountOptions } from '@nuxt/content'
 import FireModule from './modules/fire/module'
 import ListModule from './modules/list/module'
 
@@ -15,7 +14,7 @@ const external = {
 }
 
 // no external playground in stackblitz (due to CORS)
-const sources: Record<string, MountOptions> = {}
+const sources: Record<string, any> = {}
 if (!isStackblitz) {
   sources.ds = external
 }

@@ -49,59 +49,82 @@ export interface AssetMessage {
 }
 
 // ---------------------------------------------------------------------------------------------------------------------
+// content source
+// ---------------------------------------------------------------------------------------------------------------------
+
+/**
+ * Options for a content source mount
+ *
+ * Compatible with both Nuxt Content v2 MountOptions and v3 source configuration
+ */
+export interface ContentSourceOptions {
+  driver: string
+  base: string
+  prefix?: string
+  [key: string]: any
+}
+
+// ---------------------------------------------------------------------------------------------------------------------
 // content
 // ---------------------------------------------------------------------------------------------------------------------
 
+/**
+ * Parsed content structure (compatible with both Content v2 and v3)
+ */
 export interface ParsedContent {
   /**
-   * The storage id of the file
+   * Content v2: The storage id of the file
    * @example 'content:foo:bar:index.md'
    */
   _id: string
 
   /**
-   * The source group identifier
+   * Content v2: The source group identifier
    * @example 'content'
    */
   _source: string
 
   /**
-   * The directory of the file under _source
+   * Content v2: The directory of the file under _source
    * @example 'foo'
    */
   _dir: string
 
   /**
-   * The route to the file (excluding _source)
+   * Content v2: The route to the file (excluding _source)
    * @example '/foo/bar'
    */
   _path: string
 
   /**
-   * The file path of the file (excluding _source)
+   * Content v2: The file path of the file (excluding _source)
    * @example 'foo/bar/index.md'
    */
   _file: string
 
   /**
-   * The type of the file
+   * Content v2: The type of the file
    * @example 'markdown'
    */
   _type: string
 
   /**
-   * The file extension (excluding the dot)
+   * Content v2: The file extension (excluding the dot)
    * @example 'md'
    */
   _extension: string
 
   /**
    * The AST structure
-   * @example
+   *
+   * Content v2: hast-based MDC AST { type: 'root', children: [...] }
+   * Content v3: minimark tree { type: 'minimark', value: [...] }
+   *             also supports deprecated { type: 'minimal', value: [...] }
    */
   body: {
     type: string,
-    children: Array<any>
+    children?: Array<any>
+    value?: Array<any>
   }
 
   /**
