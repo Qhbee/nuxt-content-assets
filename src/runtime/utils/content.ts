@@ -23,8 +23,13 @@ export function walkMeta (content: ParsedContent, callback: WalkCallback) {
   })
 }
 
-/** System keys to skip when walking metadata */
-const systemKeys = new Set(['body', 'id', 'path', 'stem', 'extension', '__metadata', 'meta', 'seo', 'rawbody'])
+/** System keys to skip when walking metadata (these are framework-internal properties, not user content) */
+const systemKeys = new Set([
+  // Shared: processed separately
+  'body',
+  // Content v3 system properties
+  'id', 'path', 'stem', 'extension', '__metadata', 'meta', 'seo', 'rawbody',
+])
 
 /**
  * Walk parsed content body, only visiting relevant tags

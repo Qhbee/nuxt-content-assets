@@ -7,7 +7,7 @@ import { makeSourceManager } from './runtime/assets/source'
 import { makeAssetsManager } from './runtime/assets/public'
 import { rewriteContent } from './runtime/content/parsed'
 import type { ModuleMeta, Nuxt, NuxtConfigLayer } from '@nuxt/schema'
-import type { ContentSourceOptions, ImageSize, ModuleOptions } from './types'
+import type { ContentSourceOptions, ImageSize, ModuleOptions, ParsedContent } from './types'
 
 // Re-export types for consumers
 export type {
@@ -287,10 +287,21 @@ export default defineNuxtModule<ModuleOptions>({
 
     if (useContentV3) {
       // Import content processing utilities
-      const { walkBody, walkMeta } = await import('./runtime/utils/content')
       const { processMeta, processBody } = await import('./runtime/content/process')
 
-      nuxt.hook('content:file:afterParse' as any, function (ctx: any) {
+      /**
+       * Content v3 hook context
+       *
+       * In Content v3, content:file:afterParse is a Nuxt build-time hook that receives
+       * the parsed file info and content for each content file during build.
+       */
+      interface ContentV3HookContext {
+        file: { id: string; path: string; dirname?: string; extension?: string }
+        content: ParsedContent & Record<string, any>
+        collection?: any
+      }
+
+      nuxt.hook('content:file:afterParse' as any, function (ctx: ContentV3HookContext) {
         const { file, content } = ctx
         if (!content || !file) {
           return
@@ -311,16 +322,25 @@ export default defineNuxtModule<ModuleOptions>({
 
         // create a normalized content object compatible with Content v2 format
         // so the existing asset resolution logic can work
-        const normalizedContent: any = {
+        const normalizedContent: ParsedContent = {
           ...content,
-          _id: content.id || file.id,
+          _id: content._id || content.id || file.id,
+          _source: content._source || '',
+          _dir: content._dir || '',
+          _path: content._path || '',
           _file: relFile,
+          _type: content._type || 'markdown',
           _extension: (ext || '').replace(/^\./, ''),
         }
 
         // process meta and body using the asset manager
-        processMeta(normalizedContent, imageSizes, assets, isDebug)
-        processBody(normalizedContent, imageSizes, assets, isDebug)
+        const updated: string[] = []
+        processMeta(normalizedContent, imageSizes, assets, isDebug, updated)
+        processBody(normalizedContent, imageSizes, assets, isDebug, updated)
+
+        if (isDebug && updated.length) {
+          list(`Processed "/${relFile}"`, updated)
+        }
 
         // copy modifications back to the original content object
         if (normalizedContent.body) {
