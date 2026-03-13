@@ -1,8 +1,8 @@
 import Path from 'crosspath'
-import { type MountOptions } from '@nuxt/content'
 import githubDriver, { type GithubOptions } from 'unstorage/drivers/github'
 import fsDriver, { type FSStorageOptions } from 'unstorage/drivers/fs'
 import { createStorage, type Storage, type WatchEvent } from 'unstorage'
+import type { ContentSourceOptions } from '../../types'
 import {
   copyFile,
   deKey,
@@ -27,7 +27,7 @@ function isAssetId (id: string) {
 /**
  * Make a Storage instance that monitors assets from a single source
  */
-export function makeSourceStorage (source: MountOptions | string, key = ''): Storage {
+export function makeSourceStorage (source: ContentSourceOptions | string, key = ''): Storage {
   const storage = createStorage()
   const options = typeof source === 'string'
     ? { driver: 'fs', base: source }
@@ -71,7 +71,7 @@ export interface SourceManager {
  * @param publicPath
  * @param callback
  */
-export function makeSourceManager (key: string, source: MountOptions, publicPath: string, callback?: (event: WatchEvent, path: string) => void): SourceManager {
+export function makeSourceManager (key: string, source: ContentSourceOptions, publicPath: string, callback?: (event: WatchEvent, path: string) => void): SourceManager {
   // only fs will trigger watch events
   async function onWatch (event: WatchEvent, key: string) {
     if (isAssetId(key)) {
